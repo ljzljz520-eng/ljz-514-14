@@ -19,6 +19,11 @@ export type PathResult = {
   segmentDistanceMeters: number[];
 };
 
+export type RouteError = {
+  code: "unreachable" | "generic";
+  message: string;
+};
+
 type State = {
   nodes: TravelNode[];
   nodesLoading: boolean;
@@ -26,6 +31,7 @@ type State = {
   endId?: string;
   route?: PathResult;
   routeLoading: boolean;
+  routeError?: RouteError;
   selectedNodeId?: string;
 };
 
@@ -73,16 +79,16 @@ export const useTravelStore = create<State & Actions>((set, get) => ({
     }
   },
 
-  setStartId: (id) => set({ startId: id, route: undefined }),
-  setEndId: (id) => set({ endId: id, route: undefined }),
+  setStartId: (id) => set({ startId: id, route: undefined, routeError: undefined }),
+  setEndId: (id) => set({ endId: id, route: undefined, routeError: undefined }),
   setSelectedNodeId: (id) => set({ selectedNodeId: id }),
 
   swap: () => {
     const { startId, endId } = get();
-    set({ startId: endId, endId: startId, route: undefined });
+    set({ startId: endId, endId: startId, route: undefined, routeError: undefined });
   },
 
-  clear: () => set({ startId: undefined, endId: undefined, route: undefined, selectedNodeId: undefined }),
+  clear: () => set({ startId: undefined, endId: undefined, route: undefined, routeError: undefined, selectedNodeId: undefined }),
 
   fetchRoute: async () => {
     const { startId, endId } = get();
@@ -90,16 +96,20 @@ export const useTravelStore = create<State & Actions>((set, get) => ({
       notification.warning({ message: "请选择起点与终点" });
       return;
     }
-    set({ routeLoading: true });
+    set({ routeLoading: true, routeError: undefined });
     try {
       const qs = new URLSearchParams({ from: startId, to: endId });
       const res = await fetch(`${apiBase}/path?${qs.toString()}`);
       const data = await res.json();
       if (!res.ok) {
-        notification.error({ message: "规划失败", description: data?.error || "后端错误" });
+        if (res.status === 404) {
+          set({ route: undefined, routeError: { code: "unreachable", message: data?.error || "未找到可达路径" } });
+        } else {
+          notification.error({ message: "规划失败", description: data?.error || "后端错误" });
+        }
         return;
       }
-      set({ route: data as PathResult });
+      set({ route: data as PathResult, routeError: undefined });
     } catch {
       notification.error({ message: "规划失败", description: "网络异常或后端不可用" });
     } finally {

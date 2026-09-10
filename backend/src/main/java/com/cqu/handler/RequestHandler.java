@@ -59,6 +59,9 @@ public class RequestHandler {
             writeJson(exchange, 200, result);
         } catch (IllegalArgumentException e) {
             writeJson(exchange, 400, Map.of("error", e.getMessage()));
+        } catch (IllegalStateException e) {
+            // 图连通但起点到终点不可达，返回 404 便于前端给出换起点/终点建议
+            writeJson(exchange, 404, Map.of("error", e.getMessage()));
         } catch (Exception e) {
             writeJson(exchange, 500, Map.of("error", "服务器内部错误"));
         }
