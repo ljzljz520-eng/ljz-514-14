@@ -47,6 +47,16 @@ type Actions = {
 
 const apiBase = import.meta.env.VITE_API_BASE || "/api";
 
+/** 后端节点接口的原始返回结构（字段类型未知，使用前需逐一校验清洗） */
+type RawNode = {
+  id?: unknown;
+  name?: unknown;
+  lat?: unknown;
+  lng?: unknown;
+  type?: unknown;
+  desc?: unknown;
+};
+
 export const useTravelStore = create<State & Actions>((set, get) => ({
   nodes: [],
   nodesLoading: false,
@@ -60,7 +70,7 @@ export const useTravelStore = create<State & Actions>((set, get) => ({
       if (!res.ok) throw new Error("nodes_fetch_failed");
       const data = await res.json();
       if (!Array.isArray(data)) throw new Error("nodes_payload_invalid");
-      const nodes = (data as any[])
+      const nodes = (data as RawNode[])
         .map((raw) => {
           const id = String(raw?.id ?? "").trim();
           const name = String(raw?.name ?? "").trim();

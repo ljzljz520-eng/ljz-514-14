@@ -1,5 +1,13 @@
 import type { PathResult, TravelNode } from "@/stores/useTravelStore";
 
+/**
+ * 行程建议（旅行助手）生成模块。
+ *
+ * 注意：本模块输出的「预计用时」与「交通方式」均为启发式估算，
+ * 未接入真实公交/轨道交通/索道班次、道路拥堵状况与步行爬坡耗时等数据，
+ * 结果仅供参考，不能替代真实出行方案。
+ */
+
 export type SegmentMode = "walk" | "transit" | "taxi";
 
 export type ItinerarySegment = {

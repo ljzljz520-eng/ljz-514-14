@@ -6,6 +6,7 @@ import {
   Clock,
   Flag,
   Footprints,
+  Info,
   Lightbulb,
   MapPin,
   Route as RouteIcon,
@@ -75,6 +76,13 @@ function ItineraryView({ route }: { route: PathResult }) {
         </span>
         <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-700">
           途经 {route.pathNodes.length} 站 · {itinerary.segments.length} 段行程
+        </span>
+      </div>
+
+      <div className="mt-2 flex items-start gap-1 text-xs leading-5 text-slate-400">
+        <Info className="mt-1 h-3 w-3 shrink-0" />
+        <span>
+          预计用时与交通方式为启发式估算，未接入实时公交/索道班次、道路拥堵及步行爬坡耗时数据，仅供参考，请以实际出行为准。
         </span>
       </div>
 
